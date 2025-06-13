@@ -4,9 +4,12 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { UserData, Project } from "@/types"; // Make sure to import Project
+
 
 export default function Preview() {
-    const [userData, setUserData] = useState<any>(null);
+    const [userData, setUserData] = useState<UserData| null>(null);
+
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
@@ -21,7 +24,17 @@ export default function Preview() {
             try {
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists()) {
-                    setUserData(snap.data());
+                    const data = snap.data();
+                    const userData: UserData = {
+                        username: data.username || '',
+                        fullname: data.fullname || '',
+                        email: data.email || '',
+                        name: data.name || '',
+                        role: data.role || '',
+                        bio: data.bio || '',
+                        projects: data.projects || []
+                    };
+                    setUserData(userData);
                 }
             } catch (error) {
                 console.error("Error loading data:", error);
@@ -46,7 +59,7 @@ export default function Preview() {
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center p-8 max-w-md">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">No Portfolio Found</h2>
-                    <p className="text-gray-600 mb-6">We couldn't find any portfolio data for your account.</p>
+                    <p className="text-gray-600 mb-6">We couldn&#39;t find any portfolio data for your account.</p>
                     <button
                         onClick={() => router.push("/edit")}
                         className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -106,7 +119,7 @@ export default function Preview() {
 
                         {userData.projects?.length > 0 ? (
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {userData.projects.map((project: any, index: number) => (
+                                {userData.projects.map((project: Project, index: number) => (
                                     <div key={index} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                                         <div className="p-6">
                                             <h3 className="text-xl font-semibold text-gray-800 mb-2">
@@ -143,7 +156,7 @@ export default function Preview() {
                 {/* Footer */}
                 <footer className="bg-white border-t mt-12 py-6">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
-                        <p>© {new Date().getFullYear()} {userData.fullname}'s Portfolio</p>
+                        <p>© {new Date().getFullYear()} {userData.fullname}&#39;s Portfolio</p>
                     </div>
                 </footer>
             </div>

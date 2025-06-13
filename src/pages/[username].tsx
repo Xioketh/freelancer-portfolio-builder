@@ -2,11 +2,13 @@ import { useRouter } from "next/router";
 import { getDocs, query, where, collection } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useEffect, useState } from "react";
+import {UserData} from "@/types";
 
 export default function PublicPortfolio() {
     const router = useRouter();
     const { username } = router.query;
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<UserData| null>(null);
+
 
     useEffect(() => {
         if (!username) return;
@@ -14,6 +16,7 @@ export default function PublicPortfolio() {
             const q = query(collection(db, "users"), where("username", "==", username));
             const snapshot = await getDocs(q);
             if (!snapshot.empty) {
+                // @ts-ignore
                 setData(snapshot.docs[0].data());
             }
         };

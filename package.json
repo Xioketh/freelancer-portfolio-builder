@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@firebase/app-types": "^0.9.3",
     "@firebase/firestore": "^4.7.17",
     "firebase": "^11.9.1",
     "next": "15.3.3",

@@ -5,6 +5,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import {FirebaseError} from "@firebase/app";
 
 export default function Register() {
     const [email, setEmail] = useState('');
@@ -36,8 +37,12 @@ export default function Register() {
             });
 
             router.push('/dashboard');
-        } catch (err: any) {
-            setError(getErrorMessage(err.code));
+        } catch (err) {
+            if (err instanceof FirebaseError) {
+                setError(getErrorMessage(err.code));
+            } else {
+                setError('Registration failed. Please try again');
+            }
             setLoading(false);
         }
     };

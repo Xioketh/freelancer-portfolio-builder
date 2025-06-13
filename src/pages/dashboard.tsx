@@ -20,6 +20,7 @@ export default function Dashboard() {
                     username: user.displayName || '',
                     name: user.displayName || '',
                     role: 'user',
+                    fullname: '',
                     bio: '',
                     projects: []
                 };
