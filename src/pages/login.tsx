@@ -21,8 +21,11 @@ export default function Login() {
             await signInWithEmailAndPassword(auth, email, password);
             router.push('/dashboard');
         } catch (err) {
-            // @ts-expect-error
-            setError(getErrorMessage(err.code));
+            if (typeof err === 'object' && err !== null && 'code' in err) {
+                setError(getErrorMessage((err as { code: string }).code));
+            } else {
+                setError('Login failed. Please try again');
+            }
             setLoading(false);
         }
     };

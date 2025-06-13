@@ -65,16 +65,28 @@ export default function EditPage() {
         return () => unsubscribe();
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, index?: number) => {
-        if (!userData) return; // Add this check
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+        index?: number
+    ) => {
+        if (!userData) return;
 
         const { name, value } = e.target;
+
         if (name.startsWith("project-") && typeof index === "number") {
-            const field = name.split("-")[1];
-            const updatedProjects = [...userData.projects];
-            // @ts-ignore
-            updatedProjects[index][field] = value;
-            setUserData({ ...userData, projects: updatedProjects });
+            const fieldName = name.split("-")[1];
+            const field = fieldName === "title" ? "title" :
+                fieldName === "description" ? "description" :
+                    fieldName === "link" ? "link" : null;
+
+            if (field) {
+                const updatedProjects = [...userData.projects];
+                updatedProjects[index] = {
+                    ...updatedProjects[index],
+                    [field]: value
+                };
+                setUserData({ ...userData, projects: updatedProjects });
+            }
         } else {
             setUserData({ ...userData, [name]: value });
         }
