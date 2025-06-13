@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { doc, getDocs, query, where, collection } from "firebase/firestore";
+import { getDocs, query, where, collection } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useEffect, useState } from "react";
 

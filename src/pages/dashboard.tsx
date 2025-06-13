@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { auth } from '@/utils/firebase';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { FiEdit2, FiEye, FiLogOut, FiUser, FiBriefcase } from 'react-icons/fi';
+import { FiEdit2, FiEye, FiLogOut, FiUser } from 'react-icons/fi';
+import {UserData} from "@/types";
 
 export default function Dashboard() {
     const router = useRouter();
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<UserData| null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -14,7 +15,15 @@ export default function Dashboard() {
             if (!user) {
                 router.push('/login');
             } else {
-                setUser(user);
+                const userData: UserData = {
+                    email: user.email || '',
+                    username: user.displayName || '',
+                    name: user.displayName || '',
+                    role: 'user',
+                    bio: '',
+                    projects: []
+                };
+                setUser(userData);
                 setLoading(false);
             }
         });

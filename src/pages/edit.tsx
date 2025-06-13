@@ -3,6 +3,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useRouter } from "next/router";
+import {UserData} from "@/types";
 
 const jobRoles = [
     "Software Engineer",
@@ -19,14 +20,7 @@ const jobRoles = [
 ];
 
 export default function EditPage() {
-    const [userData, setUserData] = useState({
-        name: "",
-        role: "",
-        bio: "",
-        username: "",
-        fullname: "",
-        projects: [{ title: "", description: "", link: "" }],
-    });
+    const [userData, setUserData] = useState<UserData| null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
@@ -39,11 +33,29 @@ export default function EditPage() {
                 const snap = await getDoc(ref);
                 if (snap.exists()) {
                     const data = snap.data();
-                    // Ensure projects array exists
-                    if (!data.projects || data.projects.length === 0) {
-                        data.projects = [{ title: "", description: "", link: "" }];
-                    }
-                    setUserData(data as any);
+                    // Ensure all required fields have default values
+                    const userData: UserData = {
+                        username: data.username || "",
+                        fullname: data.fullname || "",
+                        email: data.email || "",
+                        name: data.name || "",
+                        role: data.role || "",
+                        bio: data.bio || "",
+                        projects: data.projects?.length ? data.projects : [{ title: "", description: "", link: "" }]
+                    };
+                    setUserData(userData);
+                } else {
+                    // Create a new user with default values
+                    const newUser: UserData = {
+                        username: "",
+                        fullname: user.displayName || "",
+                        email: user.email || "",
+                        name: user.displayName || "",
+                        role: "",
+                        bio: "",
+                        projects: [{ title: "", description: "", link: "" }]
+                    };
+                    setUserData(newUser);
                 }
                 setLoading(false);
             } else {
@@ -54,10 +66,13 @@ export default function EditPage() {
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, index?: number) => {
+        if (!userData) return; // Add this check
+
         const { name, value } = e.target;
         if (name.startsWith("project-") && typeof index === "number") {
             const field = name.split("-")[1];
             const updatedProjects = [...userData.projects];
+            // @ts-ignore
             updatedProjects[index][field] = value;
             setUserData({ ...userData, projects: updatedProjects });
         } else {
@@ -66,6 +81,8 @@ export default function EditPage() {
     };
 
     const addProject = () => {
+        if (!userData) return; // Add this check
+
         setUserData({
             ...userData,
             projects: [...userData.projects, { title: "", description: "", link: "" }]
@@ -73,7 +90,8 @@ export default function EditPage() {
     };
 
     const removeProject = (index: number) => {
-        if (userData.projects.length <= 1) return;
+        if (!userData || userData.projects.length <= 1) return; // Add null check
+
         const updatedProjects = [...userData.projects];
         updatedProjects.splice(index, 1);
         setUserData({
@@ -122,7 +140,7 @@ export default function EditPage() {
                                 type="text"
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                                 placeholder="John Doe"
-                                value={userData.fullname}
+                                value={userData?.fullname}
                                 onChange={handleChange}
                                 disabled={true}
                             />
@@ -138,7 +156,7 @@ export default function EditPage() {
                                 type="text"
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                                 placeholder="johndoe"
-                                value={userData.username}
+                                value={userData?.username}
                                 onChange={handleChange}
                                 disabled={true}
                             />
@@ -153,7 +171,7 @@ export default function EditPage() {
                             id="role"
                             name="role"
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                            value={userData.role}
+                            value={userData?.role}
                             onChange={handleChange}
                         >
                             <option value="">Select your role</option>
@@ -173,7 +191,7 @@ export default function EditPage() {
                             rows={4}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                             placeholder="Tell us about yourself..."
-                            value={userData.bio}
+                            value={userData?.bio}
                             onChange={handleChange}
                         />
                     </div>
@@ -183,7 +201,7 @@ export default function EditPage() {
                         <p className="text-sm text-gray-500 mb-4">Showcase your best work to potential employers or
                             clients.</p>
 
-                        {userData.projects.map((project, idx) => (
+                        {userData?.projects.map((project, idx) => (
                             <div key={idx} className="mb-6 p-4 border border-gray-200 rounded-lg relative">
                                 {userData.projects.length > 1 && (
                                     <button

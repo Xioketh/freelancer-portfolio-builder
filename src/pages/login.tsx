@@ -21,6 +21,7 @@ export default function Login() {
             await signInWithEmailAndPassword(auth, email, password);
             router.push('/dashboard');
         } catch (err) {
+            // @ts-expect-error
             setError(getErrorMessage(err.code));
             setLoading(false);
         }
@@ -130,7 +131,7 @@ export default function Login() {
                                 </div>
                                 <div className="relative flex justify-center text-sm">
                                     <span className="px-2 bg-white text-gray-500">
-                                        Don't have an account?
+                                        Don&#39;t have an account?
                                     </span>
                                 </div>
                             </div>
